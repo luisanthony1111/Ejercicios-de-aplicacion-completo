@@ -14,24 +14,41 @@ import numpy as np
 
 # datos
 # frecuencia en kHz
-f = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+f = np.array([
+10.0,12.5,15.0,17.5,20.0,
+22.5,25.0,27.5,30.0,32.5,
+35.0,37.5,40.0,42.5,45.0,
+47.5,50.0,52.5,55.0,57.5,
+60.0,62.5,65.0,67.5,70.0,
+72.5,75.0,77.5,80.0,82.5,
+85.0,87.5,90.0,92.5,95.0,
+97.5,100.0,102.5,105.0,107.5
+])
 
 # voltaje V(f)
-V = np.array([0.52, 0.78, 1.10, 1.48, 1.85,
-              2.10, 2.22, 2.18, 1.95, 1.60])
+V = np.array([
+0.842,0.911,0.986,1.062,1.143,
+1.227,1.314,1.401,1.482,1.551,
+1.216,1.048,0.866,0.689,0.521,
+0.364,0.223,0.103,0.012,-0.041,
+-0.057,-0.034,0.018,0.096,0.197,
+0.318,0.452,0.579,0.700,0.809,
+0.611,0.688,0.756,0.811,0.856,
+0.894,0.926,0.954,0.980,1.004
+])
 
 # Aquí guardamos todos los valores experimentales
 # f contiene las frecuencias
 # V contiene el voltaje medido en cada frecuencia
 
-h = 10
+h = 2.5
 
 # h representa la separación entre frecuencias
-# Como las frecuencias aumentan de 10 en 10:
-# 20 - 10 = 10
-# 30 - 20 = 10
+# Como las frecuencias aumentan de 2.5 en 2.5:
+# 12.5 - 10 = 2.5
+# 15 - 12.5 = 2.5
 # entonces:
-# h = 10 kHz
+# h = 2.5 kHz
 
 
 # a)
@@ -56,7 +73,7 @@ dV40_o2 = (V[i40 + 1] - V[i40 - 1]) / (2 * h)
 
 # V[i40 + 1] valor a la derecha
 # V[i40 - 1] valor a la izquierda
-# Fórmula:(V(50) - V(30)) / (2h)
+# Fórmula:(V(42.5) - V(37.5)) / (2h)
 
 # resultado
 print("Derivada en 40 kHz (orden 2):", dV40_o2)
@@ -83,10 +100,10 @@ dV40_o4 = (
     + V[i40 - 2]
 ) / (12 * h)
 
-# V[i40 + 2] -> V(60)
-# V[i40 + 1] -> V(50)
-# V[i40 - 1] -> V(30)
-# V[i40 - 2] -> V(20)
+# V[i40 + 2] -> V(45)
+# V[i40 + 1] -> V(42.5)
+# V[i40 - 1] -> V(37.5)
+# V[i40 - 2] -> V(35)
 # Todo se divide entre 12h
 
 
@@ -120,7 +137,7 @@ dV10_prog = (
     - V[i10 + 2]
 ) / (2 * h)
 
-# V(10), V(20), V(30)
+# V(10), V(12.5), V(15)
 # Se reemplazan en la fórmula progresiva.
 
 
@@ -135,6 +152,8 @@ print("\nINTERPRETACIÓN:")
 # signo de derivadas
 if dV40_o4 > 0:
     print("En 40 kHz el voltaje está aumentando.")
+else:
+    print("En 40 kHz el voltaje está disminuyendo.")
 
 if dV70_o4 > 0:
     print("En 70 kHz el voltaje aún aumenta.")
@@ -162,7 +181,8 @@ print("La diferencia progresiva se usa en extremos.")
 # la diferencia progresiva se utilizo en el extremo inicial de los datos 
 #     debido a que no existen puntos suficientes a la izquierda para aplicar 
 #     diferencias centradas
-# los valores positivos de la derivada indican que el voltaje aumenta c
-#     on la frecuencia en determinados intervalos
+# los valores positivos de la derivada indican que el voltaje aumenta con la frecuencia 
+#     en determinados intervalos
+# los valores negativos indican zonas donde la señal comienza a disminuir
 # la derivacion numerica es una herramienta importante en sistemas 
-#     biomedicos para analizar cambios y comportamiento de señales electronicas
+#     biomedicos para analizar cambios y comportamiento de señales electronicas.
