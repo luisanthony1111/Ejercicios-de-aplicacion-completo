@@ -1,0 +1,164 @@
+# En una estacion de telematria biomedica, se prueba un modulo que
+# transmite señales de un biosensor. El sistema excita al sensor con una
+# sinusoidal que mide voltaje e impedancia en funcion a la frecuencia
+# de excitacion.
+# Se busca caracterizar el comportamiento del front-end analógico y
+# verificar en qué zona de frecuencia el sistema presenta mejor 
+# adaptación de impedancias y máxima estabilidad de la señal transmitida.
+# -------------------------------------------------------------------
+# Uso de librerias, para usar operaciones matematicas (arreglos numericos),
+# uso de libreria para el grafico, y el cubicspline para el spline cubico natural
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import CubicSpline
+
+# Añadimos los vectores de datos: frecuencias, voltajes y las impedancias
+
+f = np.array([
+    10.0,12.5,15.0,17.5,20.0,22.5,25.0,27.5,30.0,32.5,
+    35.0,37.5,40.0,42.5,45.0,47.5,50.0,52.5,55.0,57.5,
+    60.0,62.5,65.0,67.5,70.0,72.5,75.0,77.5,80.0,82.5,
+    85.0,87.5,90.0,92.5,95.0,97.5,100.0,102.5,105.0,107.5
+])
+
+V = np.array([
+    0.842,0.911,0.986,1.062,1.143,1.227,1.314,1.401,1.482,1.551,
+    1.216,1.048,0.866,0.689,0.521,0.364,0.223,0.103,0.012,-0.041,
+    -0.057,-0.034,0.018,0.096,0.197,0.318,0.452,0.579,0.700,0.809,
+    0.611,0.688,0.756,0.811,0.856,0.894,0.926,0.954,0.980,1.004
+])
+
+Z = np.array([
+    182.4,178.9,175.1,171.0,166.8,162.7,158.9,155.4,152.0,149.0,
+    146.1,145.2,145.8,147.3,149.9,153.5,158.0,163.2,168.9,174.8,
+    180.5,186.2,191.5,196.2,200.1,203.1,205.2,206.3,206.1,204.7,
+    198.0,194.4,190.9,187.8,185.1,183.0,181.6,180.8,180.6,180.9
+])
+
+
+# definimos el uso de la funcion Lagrange para 3 parametros (codigo para grado 2)
+# ---------------------------------------------------------
+
+# x  -> punto donde se desea interpolar
+# xp -> valores de frecuencia
+# yp -> valores de la variable
+
+def lagrange2(x, xp, yp):
+
+    # Formula de Lagrange de segundo grado
+    # ---------------------------------------
+    # El primer polinomio activael primer punto experimental
+    L0 = ((x - xp[1]) * (x - xp[2])) / ((xp[0] - xp[1]) * (xp[0] - xp[2]))
+    # Segundo y tercer polinomio base
+    L1 = ((x - xp[0]) * (x - xp[2])) / ((xp[1] - xp[0]) * (xp[1] - xp[2]))
+    L2 = ((x - xp[0]) * (x - xp[1])) / ((xp[2] - xp[0]) * (xp[2] - xp[1]))
+
+    # Polinomio interpolante
+    # Se construye el polinomio completo, donde el resultado seria el valor
+    # interpolado
+    return yp[0]*L0 + yp[1]*L1 + yp[2]*L2
+
+# Interpolacion Lagrange
+# ---------------------------------------------------------
+# Para 41khz e usan los tres puntos más cercanos:
+# 37.5, 40.0 y 42.5 para la interpolacion de segundo grado
+
+f_41 = np.array([37.5, 40.0, 42.5])
+# voltajes e impedancias correspondientes de dichos puntos (frecuencias)
+V_41_pts = np.array([1.048, 0.866, 0.689])
+Z_41_pts = np.array([145.2, 145.8, 147.3])
+
+V41_lag = lagrange2(41.0, f_41, V_41_pts)
+Z41_lag = lagrange2(41.0, f_41, Z_41_pts)
+
+
+# Igualmente para 73Khz se usan los tres puntos más cercanos:
+# 70.0, 72.5 y 75.0
+
+f_73 = np.array([70.0, 72.5, 75.0])
+
+V_73_pts = np.array([0.197, 0.318, 0.452])
+Z_73_pts = np.array([200.1, 203.1, 205.2])
+
+V73_lag = lagrange2(73.0, f_73, V_73_pts)
+Z73_lag = lagrange2(73.0, f_73, Z_73_pts)
+
+
+# Hacemos el splinecubico del voltaje y la impedancia, con los puntos 
+# experimentales
+# Çon el spline natural generamos S´´(x0)=0 y S´´(xn)=0 que hace la
+# curvatura en los extremos sea 0
+
+spline_V = CubicSpline(f, V, bc_type='natural')
+spline_Z = CubicSpline(f, Z, bc_type='natural')
+
+V41_spline = spline_V(41.0)
+Z41_spline = spline_Z(41.0)
+
+V73_spline = spline_V(73.0)
+Z73_spline = spline_Z(73.0)
+
+# Resultados finales
+
+print("RESULTADOS")
+
+print("\n   INTERPOLACION DE LAGRANGE ")
+print(f"V(41 kHz)   = {V41_lag:.4f} V")
+print(f"|Z|(41 kHz) = {Z41_lag:.4f} ohm")
+
+print(f"V(73 kHz)   = {V73_lag:.4f} V")
+print(f"|Z|(73 kHz) = {Z73_lag:.4f} ohm")
+
+
+print("\n   SPLINE CUBICO ")
+print(f"V(41 kHz)   = {V41_spline:.4f} V")
+print(f"|Z|(41 kHz) = {Z41_spline:.4f} ohm")
+
+print(f"V(73 kHz)   = {V73_spline:.4f} V")
+print(f"|Z|(73 kHz) = {Z73_spline:.4f} ohm")
+
+
+# La funcion linspace genera 1000 puntos entre 10k a 197.5
+# para que la grafica se vea suave, aplicada en voltaje e impedancia
+f_suave = np.linspace(10, 107.5, 1000)
+
+V_suave = spline_V(f_suave)
+Z_suave = spline_Z(f_suave)
+
+
+# Generanos la grafica del voltaje y la impedancia
+
+plt.figure(figsize=(10,6))
+
+plt.plot(f, V, 'o', label='Datos experimentales')
+
+plt.plot(f_suave, V_suave, label='Spline cúbico')
+
+plt.plot(41, V41_spline, 'ro', markersize=8, label='41 kHz')
+plt.plot(73, V73_spline, 'go', markersize=8, label='73 kHz')
+
+plt.xlabel('Frecuencia (kHz)')
+plt.ylabel('Voltaje V(f)')
+plt.title('Interpolación de Voltaje')
+plt.grid(True)
+plt.legend()
+
+plt.show()
+
+plt.figure(figsize=(10,6))
+
+plt.plot(f, Z, 'o', label='Datos experimentales')
+
+plt.plot(f_suave, Z_suave, label='Spline cúbico')
+
+plt.plot(41, Z41_spline, 'ro', markersize=8, label='41 kHz')
+plt.plot(73, Z73_spline, 'go', markersize=8, label='73 kHz')
+
+plt.xlabel('Frecuencia (kHz)')
+plt.ylabel('|Z| (ohm)')
+plt.title('Interpolación de Impedancia')
+plt.grid(True)
+plt.legend()
+
+plt.show()
