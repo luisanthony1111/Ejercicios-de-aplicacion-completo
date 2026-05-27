@@ -1,0 +1,168 @@
+# La derivada de V(f) permite estimar la sensibilidad del
+# front end
+# Este código calcula la derivada numérica
+# de V(f) respecto a la frecuencia f
+# 1) Diferencia centrada de orden 2
+# 2) Diferencia centrada de orden 4
+# 3) Diferencia progresiva de orden 2
+# Además se compara cuál método es mejor
+
+import numpy as np
+
+# numpy sirve para trabajar con arreglos y cálculos numéricos
+
+
+# datos
+# frecuencia en kHz
+f = np.array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+
+# voltaje V(f)
+V = np.array([0.52, 0.78, 1.10, 1.48, 1.85,
+              2.10, 2.22, 2.18, 1.95, 1.60])
+
+# Aquí guardamos todos los valores experimentales
+# f contiene las frecuencias
+# V contiene el voltaje medido en cada frecuencia
+
+h = 10
+
+# h representa la separación entre frecuencias
+# Como las frecuencias aumentan de 10 en 10:
+# 20 - 10 = 10
+# 30 - 20 = 10
+# entonces:
+# h = 10 kHz
+
+
+# a)
+#
+# Fórmula: f'(x) ≈ [f(x+h) - f(x-h)] / (2h)
+# Se usará para:
+# f = 40 kHz
+# f = 70 kHz
+
+# derivada en 40khz
+
+
+# Buscamos el indice donde está 40
+i40 = np.where(f == 40)[0][0]
+
+# np.where busca la posición del número 40
+# [0][0] extrae el indice exacto
+
+
+# Aplicamos la formula
+dV40_o2 = (V[i40 + 1] - V[i40 - 1]) / (2 * h)
+
+# V[i40 + 1] valor a la derecha
+# V[i40 - 1] valor a la izquierda
+# Fórmula:(V(50) - V(30)) / (2h)
+
+# resultado
+print("Derivada en 40 kHz (orden 2):", dV40_o2)
+
+# derivada en 70khz
+
+i70 = np.where(f == 70)[0][0]
+
+dV70_o2 = (V[i70 + 1] - V[i70 - 1]) / (2 * h)
+
+print("Derivada en 70 kHz (orden 2):", dV70_o2)
+
+# b) 
+#
+# Fórmula:f'(x) ≈ [-f(x+2h) + 8f(x+h)-8f(x-h) + f(x-2h)] / 12h
+# Este método es más preciso porque usa más puntos
+
+# derivada en 40khz
+
+dV40_o4 = (
+    -V[i40 + 2]
+    + 8 * V[i40 + 1]
+    - 8 * V[i40 - 1]
+    + V[i40 - 2]
+) / (12 * h)
+
+# V[i40 + 2] -> V(60)
+# V[i40 + 1] -> V(50)
+# V[i40 - 1] -> V(30)
+# V[i40 - 2] -> V(20)
+# Todo se divide entre 12h
+
+
+print("Derivada en 40 kHz (orden 4):", dV40_o4)
+
+
+# derivada en 70khz
+
+dV70_o4 = (
+    -V[i70 + 2]
+    + 8 * V[i70 + 1]
+    - 8 * V[i70 - 1]
+    + V[i70 - 2]
+) / (12 * h)
+
+print("Derivada en 70 kHz (orden 4):", dV70_o4)
+
+#c)
+# Fórmula: f'(x) ≈ [-3f(x) + 4f(x+h) - f(x+2h)] / 2h
+#
+# Se usa en extremos porque no hay datos suficientes a la izquierda
+#  f = 10 kHz
+
+# derivada en 10khz
+
+i10 = np.where(f == 10)[0][0]
+
+dV10_prog = (
+    -3 * V[i10]
+    + 4 * V[i10 + 1]
+    - V[i10 + 2]
+) / (2 * h)
+
+# V(10), V(20), V(30)
+# Se reemplazan en la fórmula progresiva.
+
+
+print("Derivada en 10 kHz (progresiva orden 2):", dV10_prog)
+
+
+
+# interpretacion
+
+print("\nINTERPRETACIÓN:")
+
+# signo de derivadas
+if dV40_o4 > 0:
+    print("En 40 kHz el voltaje está aumentando.")
+
+if dV70_o4 > 0:
+    print("En 70 kHz el voltaje aún aumenta.")
+else:
+    print("En 70 kHz el voltaje empieza a disminuir.")
+
+if dV10_prog > 0:
+    print("En 10 kHz el crecimiento inicial es positivo.")
+
+
+# comparamos
+
+print("\nCOMPARACIÓN DE MÉTODOS:")
+
+print("El método de orden 4 es más preciso")
+print("porque usa más puntos alrededor del dato.")
+print("La diferencia progresiva se usa en extremos.")
+
+# la derivacion numerica permitio estimar la sensibilidad del voltaje 
+#    respecto a la frecuencia usando datos experimentales discretos
+# el metodo de diferencia centrada de orden 2 proporciono resultados 
+#     aceptables y sencillos de calcular para aproximaciones rapidas
+# el metodo de diferencia centrada de orden 4 fue mas preciso porque 
+#     utiliza una mayor cantidad de puntos alrededor del dato y reduce el error numerico
+# la diferencia progresiva se utilizo en el extremo inicial de los datos 
+#     debido a que no existen puntos suficientes a la izquierda para aplicar 
+#     diferencias centradas
+# los valores positivos de la derivada indican que el voltaje aumenta c
+#     on la frecuencia en determinados intervalos
+# la derivacion numerica es una herramienta importante en sistemas 
+#     biomedicos para analizar cambios y comportamiento de señales electronicas
