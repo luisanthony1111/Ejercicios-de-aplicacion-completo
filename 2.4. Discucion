@@ -1,0 +1,404 @@
+# PARTE 4 - discucionm
+# 1. Como V(f) y |Z(f)| ayudan a decidir
+#    la banda de operacion del sistema.
+# 2. Como la resolucion instrumental afecta:
+#       - interpolacion
+#       - derivacion
+#       - calculo de raices
+# 3. Ventajas del spline cubico frente
+#    a polinomios globales.
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+# matplotlib se usa para generar graficas
+# y visualizar el comportamiento de las señales experimentales.
+
+
+
+from scipy.interpolate import CubicSpline
+
+# CubicSpline crea interpolaciones suaves usando polinomios cubicos 
+# por intervalos.
+
+# DATOS
+
+f = np.array([
+10.0,12.5,15.0,17.5,20.0,
+22.5,25.0,27.5,30.0,32.5,
+35.0,37.5,40.0,42.5,45.0,
+47.5,50.0,52.5,55.0,57.5,
+60.0,62.5,65.0,67.5,70.0,
+72.5,75.0,77.5,80.0,82.5,
+85.0,87.5,90.0,92.5,95.0,
+97.5,100.0,102.5,105.0,107.5
+])
+
+# arreglo de frecuencias en kHz.
+# Cada posicion representa una medicion  realizada experimentalmente.
+
+V = np.array([
+0.842,0.911,0.986,1.062,1.143,
+1.227,1.314,1.401,1.482,1.551,
+1.216,1.048,0.866,0.689,0.521,
+0.364,0.223,0.103,0.012,-0.041,
+-0.057,-0.034,0.018,0.096,0.197,
+0.318,0.452,0.579,0.700,0.809,
+0.611,0.688,0.756,0.811,0.856,
+0.894,0.926,0.954,0.980,1.004
+])
+
+# arreglo de voltajes medidos.
+# Se observa que:
+# - el voltaje aumenta
+# - luego disminuye
+# - cruza por cero
+# - posteriormente vuelve a crecer
+#
+# Esto es importante porque:
+# - revela zonas de resonancia
+# - cambios de comportamiento
+# - posibles frecuencias criticas
+
+
+
+Z = np.array([
+182.4,178.9,175.1,171.0,166.8,
+162.7,158.9,155.4,152.0,149.0,
+146.1,145.2,145.8,147.3,149.9,
+153.5,158.0,163.2,168.9,174.8,
+180.5,186.2,191.5,196.2,200.1,
+203.1,205.2,206.3,206.1,204.7,
+198.0,194.4,190.9,187.8,185.1,
+183.0,181.6,180.8,180.6,180.9
+])
+
+# arreglo de impedancias.
+# |Z(f)| representa el modulo
+# de la impedancia del sistema.
+#
+# La impedancia ayuda a analizar:
+# - transferencia de energia
+# - comportamiento del circuito
+# - zonas de resonancia
+
+print("frecuencias:")
+print(f)
+
+print("\nvoltajes:")
+print(V)
+
+print("\nimpedancias:")
+print(Z)
+
+# 1. ANALISIS DE V(f) Y |Z(f)|
+# En sistemas biomedicos es importante
+# encontrar la frecuencia donde:
+# - el sistema tiene mejor respuesta
+# - existe mayor sensibilidad
+# - hay menor perdida
+#
+# Analizaremos:
+# - maximo voltaje
+# - minimo valor de impedancia
+
+
+
+# maximo voltaje
+
+Vmax = np.max(V)
+
+# busca el mayor voltaje del arreglo.
+
+indice_Vmax = np.argmax(V)
+
+# posicion donde esta el maximo.
+
+f_Vmax = f[indice_Vmax]
+
+# frecuencia asociada al maximo voltaje.
+
+# minima impedancia
+
+Zmin = np.min(Z)
+
+# menor valor de impedancia.
+
+indice_Zmin = np.argmin(Z)
+
+# posicion donde esta el minimo.
+
+f_Zmin = f[indice_Zmin]
+
+# frecuencia asociada.
+
+
+
+# resulñtados
+
+print("ANALISIS DE BANDA DE OPERACION")
+
+print("\nvoltaje maximo =", Vmax)
+
+print("frecuencia correspondiente =",
+      f_Vmax,"kHz")
+
+print("\nimpedancia minima =", Zmin)
+
+print("frecuencia correspondiente =",
+      f_Zmin,"kHz")
+
+
+
+# interpetracion
+
+print("\ninterpretacion tecnica:")
+
+print("\nla mayor amplitud de voltaje")
+print("ocurre cerca de",f_Vmax,"kHz.")
+
+print("\nesto indica que el sistema")
+print("presenta alta sensibilidad")
+print("y buena respuesta en esa zona.")
+
+print("\nademas, la impedancia minima")
+print("ocurre cerca de",f_Zmin,"kHz.")
+
+print("\nuna impedancia menor puede")
+print("permitir mejor transferencia")
+print("de energia dentro del sistema.")
+
+print("\npor ello, la banda cercana")
+print("a esas frecuencias puede")
+print("considerarse adecuada para")
+print("la operacion del sistema biomédico.")
+
+
+
+# grafica v(f)
+
+plt.figure(figsize=(8,5))
+
+plt.plot(f,V,marker='o')
+
+# grafica de voltaje.
+# marker='o'
+# muestra puntos experimentales.
+
+plt.title("comportamiento de V(f)")
+
+plt.xlabel("frecuencia (kHz)")
+
+plt.ylabel("voltaje")
+
+plt.grid(True)
+
+plt.show()
+
+# gafica de |z(f)|
+
+plt.figure(figsize=(8,5))
+
+plt.plot(f,Z,marker='o')
+
+# grafica de impedancia.
+# permite observar:
+# - minimos
+# - maximos
+# - cambios de comportamiento
+
+
+
+plt.title("comportamiento de |Z(f)|")
+
+plt.xlabel("frecuencia (kHz)")
+
+plt.ylabel("impedancia (ohmios)")
+
+plt.grid(True)
+
+plt.show()
+
+# 2. EFECTO DE LA RESOLUCION INSTRUMENTAL
+
+# Ningun instrumento mide perfectamente.
+# Siempre existe:
+# - ruido
+# - error
+# - incertidumbre
+#
+# Esto afecta:
+# - interpolacion
+# - derivadas
+# - calculo de raices
+#
+# Simularemos el ruido experimental.
+
+ruido = np.random.normal(0,0.03,len(V))
+
+# genera ruido aleatorio.
+#
+# promedio = 0
+# desviacion = 0.03
+#
+# esto simula pequeñas variaciones en las mediciones reales.
+
+V_ruidoso = V + ruido
+
+# nueva señal alterada por errores instrumentales.
+
+# resultados
+
+print("EFECTO DE LA RESOLUCION")
+print(" ")
+
+print("\nvoltajes originales:")
+print(V)
+
+print("\nvoltajes con ruido:")
+print(V_ruidoso)
+
+# interpretacion
+
+print("\ninterpretacion tecnica:")
+
+print("\ncuando los instrumentos")
+print("tienen baja resolucion,")
+
+print("las mediciones presentan")
+print("errores y fluctuaciones.")
+
+print("\nesto afecta directamente:")
+print("- la interpolacion")
+print("- las derivadas")
+print("- la deteccion de raices")
+
+print("\npor ejemplo, pequeñas")
+print("variaciones pueden mover")
+print("la posicion exacta")
+print("de un cruce por cero.")
+
+print("\ntambien pueden aparecer")
+print("pendientes falsas en")
+print("las derivadas numericas.")
+
+# comparamos las graficas
+
+plt.figure(figsize=(8,5))
+
+plt.plot(f,V,
+         marker='o',
+         label='original')
+
+plt.plot(f,V_ruidoso,
+         marker='x',
+         label='con ruido')
+
+plt.title("efecto de la resolucion instrumental")
+
+plt.xlabel("frecuencia (kHz)")
+
+plt.ylabel("voltaje")
+
+plt.legend()
+
+plt.grid(True)
+
+plt.show()
+
+# spline cubico
+
+# Los polinomios globales de alto grado pueden producir oscilaciones grandes.
+# Esto ocurre especialmente cuando:
+# - existen muchos datos
+# - los puntos estan separados
+#
+# Los splines cubicos solucionan esto usando pequeños polinomios en cada intervalo.
+
+spline = CubicSpline(f,V)
+
+# crea una curva suave
+# usando todos los puntos.
+
+fx = np.linspace(10,107.5,2000)
+
+# generamos  2000 puntos
+# esto permite visualizar una curva continua y suave.
+
+# EVALUAR SPLINE
+
+fy = spline(fx)
+
+# calcula el spline en todos los puntos generados.
+
+# grafica
+
+plt.figure(figsize=(8,5))
+
+plt.plot(f,V,
+         'o',
+         label='datos experimentales')
+
+plt.plot(fx,fy,
+         label='spline cubico')
+
+plt.title("interpolacion con spline cubico")
+
+plt.xlabel("frecuencia (kHz)")
+
+plt.ylabel("voltaje")
+
+plt.legend()
+
+plt.grid(True)
+
+plt.show()
+
+# respuestas
+
+print("\n ")
+print("VENTAJAS DEL SPLINE CUBICO")
+print(" ")
+
+print("\nlos splines cubicos generan")
+print("curvas suaves y estables.")
+
+print("\nevitan las grandes")
+print("oscilaciones de los")
+print("polinomios globales.")
+
+print("\nademas:")
+
+print("- representan mejor")
+print("  el comportamiento fisico")
+
+print("- reducen errores")
+
+print("- mejoran la estabilidad")
+
+print("- producen resultados")
+print("  mas realistas")
+
+print("\npor ello son ampliamente")
+print("utilizados en bioingenieria")
+print("y procesamiento de señales.")
+
+# conclusiones
+
+print("\n ")
+print("CONCLUSION GENERAL")
+print(" ")
+
+print("\nla respuesta V(f) permitio identificar")
+print("la zona de mejor funcionamiento del sistema.")
+print("")
+
+print("\nla impedancia |Z(f)| ayudo a analizar")
+print("la transferencia de energia.")
+
+print("\nla resolucion instrumental influye directamente")
+print("sobre la precision de los calculos numericos.")
+
+print("\nlos splines cubicos proporcionan una")
+print("interpolacion mas estable y fisicamente realista.")
