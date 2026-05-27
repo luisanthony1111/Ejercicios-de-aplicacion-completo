@@ -1,0 +1,74 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# frecuencia
+f = np.array([
+    100, 120, 145, 170, 200,
+    235, 270, 310, 355, 405,
+    460, 520, 585, 655, 730,
+    810, 895, 985, 1080, 1180,
+    1290, 1410, 1540, 1680, 1830,
+    1990, 2160, 2340, 2530, 2730
+])
+
+#impedancia
+Z = np.array([
+    152.3, 149.1, 146.8, 144.9, 142.0,
+    139.5, 137.9, 136.1, 134.8, 133.6,
+    132.7, 131.9, 131.4, 131.1, 130.9,
+    131.0, 131.3, 131.9, 132.7, 133.8,
+    135.2, 136.9, 138.9, 141.1, 143.5,
+    146.1, 149.0, 152.2, 155.6, 159.2
+])
+
+#valor min
+indice_min = np.argmin(Z)
+
+#frecuencia y valor min
+f_min = f[indice_min]
+Z_min = Z[indice_min]
+
+# grafica
+plt.figure(figsize=(10,6))
+
+# datos de la graficas
+plt.plot(
+    f,
+    Z,
+    'o-',
+    linewidth=2,
+    markersize=6,
+    label='Datos experimentales'
+)
+
+#minb local
+plt.scatter(
+    f_min,
+    Z_min,
+    s=120,
+    label='Mínimo local'
+)
+
+# punto
+plt.annotate(
+    f'Mínimo local\nf = {f_min} Hz\n|Z| = {Z_min}',
+    (f_min, Z_min),
+    textcoords="offset points",
+    xytext=(15,15)
+)
+
+# ejes
+plt.xlabel('Frecuencia (Hz)')
+plt.ylabel('|Z| (Ohm)')
+
+plt.title('Magnitud de impedancia en función de la frecuencia')
+
+plt.grid(True)
+
+plt.legend()
+
+plt.show()
+
+# resultados
+print("Frecuencia del mínimo local:", f_min, "Hz")
+print("Valor mínimo de impedancia:", Z_min)
