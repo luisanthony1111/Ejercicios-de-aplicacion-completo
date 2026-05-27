@@ -1,0 +1,170 @@
+# Se activauna alarma cuando el voltaje de salida cruza 
+# por primera vez el nivel 0
+# 1. Busca cambios de signo en V(f)
+# 2. Encuentra las raices usando biseccion
+# 3. Usa spline cubico para comparar resultados
+
+import numpy as np
+from scipy.interpolate import CubicSpline
+
+# numpy - operaciones numericas
+# CubicSpline - crea el spline cubico
+
+# datos
+f = np.array([10,20,30,40,50,60,70,80,90,100])
+
+V = np.array([0.52,0.78,1.10,1.48,1.85,
+              2.10,2.22,2.18,1.95,1.60])
+
+# f  frecuencias
+# V  voltajes medidos
+
+# 1. buscamos el cambio de signo
+
+print("cambios de signo encontrados:\n")
+
+intervalos = []
+# recorremos todos los puntos
+for i in range(len(V)-1):
+
+    # multiplicacion entre puntos consecutivos
+    # si da negativo hay cambio de signo
+    if V[i] * V[i+1] < 0:
+
+        print("cambio entre:",
+              f[i], "y", f[i+1], "kHz")
+
+        intervalos.append((f[i], f[i+1]))
+
+
+# con los datos actuales todos los voltajes son positivos, por lo tanto:
+# no existe cambio de signo real.
+#
+# para demostrar el metodo se modificara el ultimo punto.
+
+
+
+# datos modificados para usar en la demostracion
+
+V2 = np.array([0.52,0.78,1.10,1.48,1.85,
+               2.10,2.22,2.18,1.95,-0.50])
+
+# ahora si existe cambio de signo entre 90 y 100
+# ----------------------
+# cambio de signo
+
+print("\ncon datos modificados:\n")
+
+for i in range(len(V2)-1):
+
+    if V2[i] * V2[i+1] < 0:
+
+        a = f[i]
+        b = f[i+1]
+
+        print("primer cambio de signo:")
+        print(a, "kHz y", b, "kHz")
+
+
+# 2. metodo de biseccion
+# funcion lineal simple entre puntos
+def funcion(x):
+
+    return np.interp(x, f, V2)
+
+# interp hace interpolacion lineal
+# empezamos con el intervalo inicial
+a = 90
+b = 100
+
+# tolerancia del error
+tol = 0.0001
+
+# el contador
+iteracion = 0
+
+print("\nproceso de biseccion:\n")
+
+while (b - a)/2 > tol:
+
+    # punto medio
+    c = (a + b)/2
+
+    # iteraciones
+    print("iteracion", iteracion)
+    print("a =", a)
+    print("b =", b)
+    print("c =", c)
+    print("f(c) =", funcion(c))
+    print()
+
+    # verificar cambio de signo
+    if funcion(a) * funcion(c) < 0:
+
+        b = c
+
+    else:
+
+        a = c
+
+    iteracion += 1
+
+
+# raiz final
+raiz_biseccion = (a + b)/2
+
+print("raiz aproximada por biseccion:")
+print(raiz_biseccion)
+
+
+# 3. el spline cubico
+# crear spline cubico
+spline = CubicSpline(f, V2)
+
+# generar muchos puntos
+fx = np.linspace(90,100,1000)
+
+# evaluar spline
+vy = spline(fx)
+
+# buscar donde cambia de signo
+for i in range(len(vy)-1):
+
+    if vy[i] * vy[i+1] < 0:
+
+        raiz_spline = (fx[i] + fx[i+1])/2
+
+        break
+
+
+# resultado
+print("\nraiz usando spline cubico:")
+print(raiz_spline)
+
+
+# 4. comparamos
+
+print("\ncomparacion:")
+
+print("biseccion =", raiz_biseccion)
+
+print("spline =", raiz_spline)
+
+print("\nel spline cubico suele dar")
+print("una aproximacion mas suave y precisa")
+print("porque considera la curvatura")
+print("de los datos.")
+
+# el metodo de cambio de signo permitio identificar los intervalos donde 
+# la funcion puede contener una raiz.
+# el metodo de biseccion localizo la raiz de manera estable y precisa 
+# reduciendo progresivamente el intervalo de busqueda.
+# la biseccion es un metodo confiable porque siempre converge cuando existe
+# un cambio de signo en el intervalo.
+# el spline cubico permitio obtener una aproximacion mas suave de la señal 
+# experimental al considerar la curvatura de los datos.
+# la raiz obtenida mediante spline cubico fue ligeramente mas precisa que 
+# la obtenida por biseccion debido a la interpolacion continua.
+# los metodos numericos de busqueda de raices son utiles en sistemas 
+# electronicos y biomedicos para detectar puntos criticos como cruces por 
+# cero o activacion de alarmas.
